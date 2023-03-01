@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="bfd31ad3-a128-451a-8f34-48d352c667df" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="5d2e5789-7419-4ec7-a4b4-fec83149344e" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Daddy@143" database="kangula" />
+	</db:config>
+	<flow name="newlearnFlow" doc:id="5e3fe4c8-358c-4f18-9e5e-78a6f3242e1f" >
+		<http:listener doc:name="Listener" doc:id="d22953ed-dbe7-46fc-909a-04f607ea2cda" config-ref="HTTP_Listener_config" path="/ok" allowedMethods="GET"/>
+		<db:select doc:name="Select" doc:id="cc7864bd-8dcb-4561-85c9-581781a4cb52" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM kanth;]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="e39c7cb8-2316-4e42-8500-ad1a2b2729e0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="newlearnFlow1" doc:id="dfa3f77f-09b6-4b4b-b10b-ac38352274a0" >
+		<http:listener doc:name="Listener" doc:id="e4f3fe0b-c782-402c-acaf-fcf063de6db2" config-ref="HTTP_Listener_config" path="/ok/{id}"/>
+		<db:select doc:name="Select" doc:id="78997546-7159-4868-b05e-1ecd13454e1a" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM kanth where id =:id;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+ id: attributes.uriParams.id
+ }]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="7102eac9-e8a6-4625-949e-4dd8b66684f8">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="newlearnFlow2" doc:id="6026a269-63ee-45fa-8b7f-35a435210183" >
+		<http:listener doc:name="Listener" doc:id="b2da7e07-f114-4ee9-959c-182ed1293ed6" config-ref="HTTP_Listener_config" path="/ok" allowedMethods="POST"/>
+		<db:insert doc:name="Insert" doc:id="a5a9fb4d-0c76-46e7-8fe2-b2415ffb1dff" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into kanth (id, name) values (:id, :name);]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+  id: payload.id,
+  name: payload.name
+}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="04022316-0e13-463d-b294-d07318526614" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="newlearnFlow3" doc:id="ff1f2abc-8ab3-41f9-a2b6-345a72e63e3e" >
+		<http:listener doc:name="Listener" doc:id="35e17771-b1ca-4b93-b878-a3ab8b9db19c" config-ref="HTTP_Listener_config" path="/ok" allowedMethods="PATCH"/>
+		<db:update doc:name="Update" doc:id="219bd1ca-03e9-4798-bde9-14e81a76f427" config-ref="Database_Config">
+			<db:sql ><![CDATA[Update kanth set name=:name where id= :id;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{ 
+  id: payload.id,
+  name: payload.name
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Transform Message" doc:id="48d1b0f2-29d6-48d2-9a14-d8d9d0376453" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="newlearnFlow4" doc:id="b9e3cb23-f5d3-4a09-9940-5b8e6ae1a0e5" >
+		<http:listener doc:name="Listener" doc:id="f457afdb-7e54-4e2d-ae81-d1dd49d81152" config-ref="HTTP_Listener_config" path="/ok/{id}" allowedMethods="DELETE"/>
+		<db:delete doc:name="Delete" doc:id="4a9b0ef1-1065-4500-90c8-ba66499252e0" config-ref="Database_Config">
+			<db:sql ><![CDATA[Delete from kanth where ID=:id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+   id: attributes.uriParams.id
+}]]]></db:input-parameters>
+		</db:delete>
+		<ee:transform doc:name="Transform Message" doc:id="424012bb-ee22-4efc-8c82-f17de537f4d7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="newlearnFlow5" doc:id="4309110e-cf47-4375-8c19-b9d954264416" >
+		<http:listener doc:name="Listener" doc:id="0d037404-9fe7-4941-96d2-9fb7b4875205" config-ref="HTTP_Listener_config" path="/ok" allowedMethods="PUT"/>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="6ccf47c3-89af-4797-8ae9-00566a2bf1ae" variableName="vset"/>
+		<db:select doc:name="Select" doc:id="fc8f904a-4faf-488f-8d75-428e58b1d566" config-ref="Database_Config">
+			<db:sql ><![CDATA[Select ID from kanth where ID= id;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+ id: vars.vset.id
+}]]]></db:input-parameters>
+		</db:select>
+		<choice doc:name="Choice" doc:id="4d1c4b24-edd1-4bb8-b613-4633baa144cd" >
+			<when expression="#[payload.id !=null]">
+				<db:update doc:name="Update" doc:id="b43d96b1-fc22-4fd1-9ca3-b07c709aeb98" config-ref="Database_Config">
+					<db:sql ><![CDATA[update kanth  set name=:name where id= :id;]]></db:sql>
+					<db:input-parameters ><![CDATA[#[{
+  id: vars.vset.id,
+  name: vars.vset.name
+  }]]]></db:input-parameters>
+				</db:update>
+			</when>
+			<otherwise >
+				<db:insert doc:name="Insert" doc:id="24916d47-d533-4a1e-874e-a5bd33f28c86" config-ref="Database_Config">
+					<db:sql ><![CDATA[Insert into kanth(id,name) values(:id,:name);]]></db:sql>
+					<db:input-parameters ><![CDATA[#[{
+  id: vars.vset.id,
+  name: vars.vset.name
+}]]]></db:input-parameters>
+				</db:insert>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="Transform Message" doc:id="645cb0f9-076a-46b0-b417-2babde4a218a">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
